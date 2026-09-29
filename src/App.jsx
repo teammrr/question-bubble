@@ -4,6 +4,7 @@ import Sticker from "./Sticker.jsx";
 import SettingsPanel from "./SettingsPanel.jsx";
 import { useSettings } from "./useSettings.js";
 import { newSeed } from "./typing.js";
+import { download } from "./download.js";
 
 export default function App() {
   const [settings, update] = useSettings();
@@ -68,12 +69,7 @@ export default function App() {
         transparent: s.exportTransparent,
         onProgress: (progress) => setExportStatus({ progress }),
       });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `ig-question-${Date.now()}${extension}`;
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      download(blob, `ig-question-${Date.now()}${extension}`);
       setExportStatus({ done: true });
     } catch (err) {
       setExportStatus({ error: err.message });

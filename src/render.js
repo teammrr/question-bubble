@@ -20,7 +20,7 @@ const segmenter = new Intl.Segmenter(undefined, { granularity: "word" });
 const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 
 // Word-wrap like `white-space: pre-wrap`, using Intl.Segmenter so Thai (no spaces) breaks correctly
-function wrap(ctx, text, maxWidth) {
+export function wrap(ctx, text, maxWidth) {
   const lines = [];
   for (const paragraph of text.split("\n")) {
     let line = "";
@@ -68,7 +68,7 @@ function headerFill(ctx, css, x, y, w, h) {
   return gradient;
 }
 
-function roundRect(ctx, x, y, w, h, r) {
+export function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, r);
 }

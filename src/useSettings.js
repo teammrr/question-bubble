@@ -37,25 +37,25 @@ const DEFAULTS = {
   exportTransparent: false,
 };
 
-function load() {
+function load(key) {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    return JSON.parse(localStorage.getItem(key) || "{}");
   } catch {
     return {};
   }
 }
 
 // Settings persisted in localStorage so they survive reloads between recordings
-export function useSettings() {
-  const [settings, setSettings] = useState(() => ({ ...DEFAULTS, ...load() }));
+export function useSettings(key = STORAGE_KEY, defaults = DEFAULTS) {
+  const [settings, setSettings] = useState(() => ({ ...defaults, ...load(key) }));
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      localStorage.setItem(key, JSON.stringify(settings));
     } catch {
       /* storage unavailable (e.g. private window) */
     }
-  }, [settings]);
+  }, [key, settings]);
 
   const update = (patch) => setSettings((prev) => ({ ...prev, ...patch }));
 

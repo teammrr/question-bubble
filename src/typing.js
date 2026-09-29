@@ -86,13 +86,16 @@ function planKeystrokes(text, { wpm, typos }, rand) {
   return steps;
 }
 
+// Keystrokes for each text in order, from one seed ({ wpm, typos, seed })
+export function planTexts(texts, options) {
+  const rand = seededRandom(options.seed);
+  return texts.map((text) => planKeystrokes(text, options, rand));
+}
+
 // Both fields' keystrokes for a script ({ question, answer, wpm, typos, seed })
 export function planScript(script) {
-  const rand = seededRandom(script.seed);
-  return {
-    question: planKeystrokes(script.question, script, rand),
-    answer: planKeystrokes(script.answer, script, rand),
-  };
+  const [question, answer] = planTexts([script.question, script.answer], script);
+  return { question, answer };
 }
 
 // ---------- Live playback into the contenteditable fields ----------
@@ -124,7 +127,7 @@ export async function typeSteps(el, steps, signal) {
 
 // ---------- Timeline for rendering video frames ----------
 
-function applyKey(text, key) {
+export function applyKey(text, key) {
   return key === "Backspace" ? Array.from(text).slice(0, -1).join("") : text + key;
 }
 

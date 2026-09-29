@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
-import "./index.css";
-import "./panel.css";
+import ChatApp from "./ChatApp.jsx";
+import "./chat.css";
+import "../panel.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <ChatApp />
   </React.StrictMode>
 );
