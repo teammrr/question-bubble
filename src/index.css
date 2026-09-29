@@ -1,0 +1,184 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+main {
+  height: 100%;
+  background: var(--screen);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+}
+
+main.show-cursor { cursor: default; }
+
+/* ---------- Sticker ---------- */
+#stage { transform: scale(var(--scale)); }
+
+.sticker {
+  position: relative;
+  width: 320px;
+  border-radius: 22px;
+  margin-top: 30px; /* room for the avatar */
+}
+
+.sticker > div {
+  background: #fff;
+  border-radius: 22px;
+}
+
+.sticker.shadow > div { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18); }
+
+.avatar {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: #dbdbdb center / cover no-repeat;
+  z-index: 2;
+}
+
+.header {
+  border-radius: 22px 22px 0 0;
+  padding: 40px 22px 18px;
+  color: #fff;
+  text-align: center;
+}
+
+.body {
+  padding: 16px 18px 18px;
+  text-align: center;
+}
+
+.field {
+  outline: none;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  min-height: 1.25em;
+}
+
+#question {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.25;
+  caret-color: #fff;
+}
+
+#answer {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #262626;
+  caret-color: #262626;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+/* Empty answer looks like the real "Type something..." input */
+#answer:empty { background: #efefef; }
+#answer:empty::before {
+  content: attr(data-placeholder);
+  color: #8e8e8e;
+  font-weight: 400;
+}
+#question:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Hide the caret after a "pop" so the finished sticker looks clean */
+.sticker.idle .field { caret-color: transparent !important; }
+
+/* ---------- Settings panel (hidden while recording) ---------- */
+#panel {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 260px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(20, 20, 20, 0.92);
+  color: #eee;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: default;
+  z-index: 10;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+#panel h2 { font-size: 14px; }
+#panel h3 { font-size: 13px; }
+#panel .section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+}
+#panel textarea {
+  resize: vertical;
+  padding: 6px 8px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #1c1c1c;
+  color: #eee;
+  font: inherit;
+}
+#panel button.primary { background: #3897f0; color: #fff; }
+#panel button.primary:hover { background: #2a86dd; }
+#panel label { display: flex; flex-direction: column; gap: 6px; }
+#panel .row { flex-direction: row; align-items: center; gap: 8px; }
+#panel input[type="range"] { width: 100%; }
+#panel button {
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #333;
+  color: #eee;
+  cursor: pointer;
+}
+#panel button:hover { background: #444; }
+#panel kbd {
+  background: #333;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: inherit;
+}
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.swatch.active { border-color: #fff; }
+.help { color: #aaa; line-height: 1.6; }
+
+#hint {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 13px;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+#hint.gone { opacity: 0; }
