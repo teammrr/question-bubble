@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import Sticker from "./Sticker.jsx";
 import SettingsPanel from "./SettingsPanel.jsx";
 import { useSettings } from "./useSettings.js";
+import { newSeed } from "./typing.js";
 
 export default function App() {
   const [settings, update] = useSettings();
@@ -19,21 +20,64 @@ export default function App() {
     playbackRef.current?.abort();
   }
 
+  const lastScriptRef = useRef(null);
+  const [exportStatus, setExportStatus] = useState(null); // { progress } | { error }
+
+  // The auto-type script from settings. Reuses the last played seed when nothing
+  // changed, so an export matches the preview keystroke for keystroke.
+  function currentScript() {
+    const { autoQuestion, autoAnswer, wpm, typos } = settingsRef.current;
+    if (!autoQuestion.trim() && !autoAnswer.trim()) return null;
+    const next = { question: autoQuestion, answer: autoAnswer, wpm, typos };
+    const last = lastScriptRef.current;
+    const same = last && Object.keys(next).every((k) => last[k] === next[k]);
+    return { ...next, seed: same ? last.seed : newSeed() };
+  }
+
   // Start a fresh sticker that types the saved question and answer by itself
   function play() {
-    const { autoQuestion, autoAnswer, wpm, typos } = settingsRef.current;
-    if (!autoQuestion.trim() && !autoAnswer.trim()) return;
+    const next = currentScript();
+    if (!next) return;
     stopPlayback();
     playbackRef.current = new AbortController();
-    setScript({
-      question: autoQuestion,
-      answer: autoAnswer,
-      wpm,
-      typos,
-      signal: playbackRef.current.signal,
-    });
+    // A fresh take each time Play is pressed
+    const script = { ...next, seed: newSeed() };
+    lastScriptRef.current = script;
+    setScript({ ...script, signal: playbackRef.current.signal });
     setStickerId((id) => id + 1);
     setPanelOpen(false);
+  }
+
+  async function exportToFile() {
+    const script = currentScript();
+    if (!script) {
+      setExportStatus({ error: "Add a question or answer in Auto-type first." });
+      return;
+    }
+    lastScriptRef.current = script;
+    const s = settingsRef.current;
+    setExportStatus({ progress: 0 });
+    try {
+      // Loaded on demand: the encoder is most of the bundle
+      const { exportVideo } = await import("./exportVideo.js");
+      const { blob, extension } = await exportVideo({
+        script,
+        settings: s,
+        size: s.exportSize,
+        fps: s.exportFps,
+        transparent: s.exportTransparent,
+        onProgress: (progress) => setExportStatus({ progress }),
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `ig-question-${Date.now()}${extension}`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      setExportStatus({ done: true });
+    } catch (err) {
+      setExportStatus({ error: err.message });
+    }
   }
 
   useEffect(() => {
@@ -98,7 +142,14 @@ export default function App() {
       </div>
 
       {panelOpen && (
-        <SettingsPanel settings={settings} update={update} panelRef={panelRef} onPlay={play} />
+        <SettingsPanel
+          settings={settings}
+          update={update}
+          panelRef={panelRef}
+          onPlay={play}
+          onExport={exportToFile}
+          exportStatus={exportStatus}
+        />
       )}
 
       <div id="hint" className={hintVisible ? "" : "gone"}>

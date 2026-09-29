@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
-import { focusEnd, sleep, typeText } from "./typing.js";
+import { PAUSES, focusEnd, planScript, sleep, typeSteps } from "./typing.js";
 
 // contenteditable leaves a stray <br> when emptied, which breaks the :empty placeholder
 function tidy(el) {
@@ -36,16 +36,16 @@ export default function Sticker({ header, avatar, shadow, initialQuestion, onQue
     // Auto-type: question, Enter, answer, Enter — like a person would
     const abort = new AbortController();
     const signal = AbortSignal.any([abort.signal, script.signal]);
-    const options = { wpm: script.wpm, typos: script.typos, signal };
+    const plan = planScript(script);
     (async () => {
       focusEnd(question);
-      await sleep(800, signal);
-      await typeText(question, script.question, options);
-      await sleep(500, signal);
+      await sleep(PAUSES.start, signal);
+      await typeSteps(question, plan.question, signal);
+      await sleep(PAUSES.afterQuestion, signal);
       focusEnd(answer);
-      await sleep(400, signal);
-      await typeText(answer, script.answer, options);
-      await sleep(500, signal);
+      await sleep(PAUSES.afterFocus, signal);
+      await typeSteps(answer, plan.answer, signal);
+      await sleep(PAUSES.beforePop, signal);
       pop();
     })().catch(() => {
       /* stopped: Esc, a new run, or the settings panel opened */

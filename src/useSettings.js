@@ -12,6 +12,12 @@ export const HEADERS = [
   "#58c322",
 ];
 
+export const SIZES = {
+  story: { label: "1080×1920 (Story / Reel)", width: 1080, height: 1920 },
+  landscape: { label: "1920×1080 (YouTube)", width: 1920, height: 1080 },
+  square: { label: "1080×1080 (Square)", width: 1080, height: 1080 },
+};
+
 const STORAGE_KEY = "ig-question-bubble";
 
 const DEFAULTS = {
@@ -26,6 +32,9 @@ const DEFAULTS = {
   autoAnswer: "",
   wpm: 60,
   typos: false,
+  exportSize: "story",
+  exportFps: 60,
+  exportTransparent: false,
 };
 
 function load() {
